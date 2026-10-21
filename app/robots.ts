@@ -11,7 +11,8 @@ export default function robots(): MetadataRoute.Robots {
   }
 
   return {
-    rules: { userAgent: "*", allow: "/" },
+    // The demo portal is never crawled.
+    rules: { userAgent: "*", allow: "/", disallow: "/portal" },
     sitemap: siteUrl ? `${siteUrl}/sitemap.xml` : undefined,
   };
 }

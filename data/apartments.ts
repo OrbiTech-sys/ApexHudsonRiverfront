@@ -15,11 +15,31 @@ import { image } from "@/data/images";
  * record before launch.
  */
 
-const unconfirmedFeatures: ApartmentFeatures = {
-  verified: false,
-  items: [],
-  note: "In-unit features vary by residence. Your leasing team confirms the details for each home during a tour.",
+/**
+ * Illustrative in-unit features for the demo plans. They are not confirmed
+ * for any real home; replace with verified data per floor plan.
+ */
+const baseFeatures = [
+  "Stainless steel kitchen appliances",
+  "Central heating and cooling",
+  "Washer and dryer",
+  "Generous closet space",
+  "Large windows",
+];
+
+const typeFeature: Record<BedroomType, string> = {
+  studio: "Efficient open layout",
+  "one-bed": "Separate bedroom",
+  "two-bed": "Two separate bedrooms",
 };
+
+function demoFeatures(type: BedroomType): ApartmentFeatures {
+  return {
+    verified: false,
+    items: [typeFeature[type], ...baseFeatures],
+    note: "Illustrative demo features, not confirmed for any real home. Your leasing team confirms the details during a tour.",
+  };
+}
 
 interface PlanSeed {
   slug: string;
@@ -179,7 +199,7 @@ export const apartments: ApartmentFloorPlan[] = seeds.map((seed, index) => {
     availability: seed.availability,
     availabilityStatus: "illustrative",
     summary: seed.summary,
-    features: unconfirmedFeatures,
+    features: demoFeatures(seed.bedroomType),
     image: primary,
     gallery: [primary, ...rest],
     featured: seed.featured,

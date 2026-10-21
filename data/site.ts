@@ -29,8 +29,9 @@ export const site: SiteConfig = {
       "City of Yonkers Affordable Housing Ordinance unit list (public document)",
   },
   // No verified resident portal URL has been provided. Never invent one.
-  // Set this to the real address (https://...) and the header, footer and
-  // mobile menu will switch from the disabled placeholder to a live link.
+  // While this is null, the header, footer and mobile menu open the built-in
+  // DEMO portal at /portal. Set it to the real address (https://...) and they
+  // switch to that external link instead.
   residentPortalUrl: null,
   managedBy: "Two Coast Living",
   googleMapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapsQuery)}`,
@@ -51,4 +52,4 @@ export const tourHref = "/contact#tour";
 export const copyrightYear = 2026;
 
 export const demoDisclaimer =
-  "This site is a redesign concept. Floor plans, rents and availability shown are illustrative demo data and do not represent current inventory.";
+  "This site is a redesign concept. Floor plans, rents and availability shown are illustrative demo data and do not represent current inventory. The Resident Portal and saved tour requests are demos that use sample data stored in your browser.";

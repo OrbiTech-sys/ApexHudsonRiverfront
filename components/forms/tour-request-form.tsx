@@ -3,8 +3,10 @@
 import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { Controller, useForm, useWatch } from "react-hook-form";
-import { CircleAlert, FlaskConical } from "lucide-react";
+import { CalendarPlus, CircleAlert, FlaskConical } from "lucide-react";
 import type { TourApartmentType } from "@/types/property";
+import type { SavedTourRequest } from "@/types/portal";
+import { Field } from "@/components/forms/field";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -15,6 +17,8 @@ import {
 } from "@/components/ui/native-select";
 import { Textarea } from "@/components/ui/textarea";
 import { site } from "@/data/site";
+import { downloadTextFile } from "@/lib/demo/download";
+import { buildTourIcs } from "@/lib/demo/ics";
 import { bedroomTypeLabels } from "@/lib/format";
 import { submitTourInquiry } from "@/lib/inquiries";
 import {
@@ -42,58 +46,6 @@ interface TourRequestFormProps {
   className?: string;
 }
 
-function Field({
-  id,
-  label,
-  required,
-  error,
-  hint,
-  className,
-  children,
-}: {
-  id: string;
-  label: string;
-  required?: boolean;
-  error?: string;
-  hint?: string;
-  className?: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className={cn("space-y-2", className)}>
-      <Label htmlFor={id} className="text-[0.9375rem] text-ink">
-        {label}
-        {required ? (
-          <>
-            <span aria-hidden="true" className="text-danger">
-              *
-            </span>
-            <span className="sr-only"> (required)</span>
-          </>
-        ) : (
-          <span className="font-normal text-ink-3">(optional)</span>
-        )}
-      </Label>
-      {children}
-      {hint && !error ? (
-        <p id={`${id}-hint`} className="text-sm text-ink-3">
-          {hint}
-        </p>
-      ) : null}
-      {error ? (
-        <p
-          id={`${id}-error`}
-          role="alert"
-          className="flex items-start gap-1.5 text-sm font-medium text-danger"
-        >
-          <CircleAlert className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-          {error}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
 export function TourRequestForm({
   defaultApartmentType = "no-preference",
   planName,
@@ -101,7 +53,7 @@ export function TourRequestForm({
 }: TourRequestFormProps) {
   const uid = useId();
   const field = (name: string) => `${uid}-${name}`;
-  const [submitted, setSubmitted] = useState<TourInquiryFormValues | null>(null);
+  const [saved, setSaved] = useState<SavedTourRequest | null>(null);
   const successRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -120,21 +72,21 @@ export function TourRequestForm({
   });
 
   useEffect(() => {
-    if (submitted) successRef.current?.focus();
-  }, [submitted]);
+    if (saved) successRef.current?.focus();
+  }, [saved]);
 
   const message = useWatch({ control, name: "message" });
   const messageLength = message?.length ?? 0;
   const errorCount = Object.keys(errors).length;
 
   const onSubmit = async (values: TourInquiryFormValues) => {
-    await submitTourInquiry({
+    const result = await submitTourInquiry({
       ...values,
       phone: values.phone || undefined,
       preferredDate: values.preferredDate || undefined,
       message: values.message || undefined,
     });
-    setSubmitted(values);
+    setSaved(result.saved);
   };
 
   const describedBy = (name: keyof TourInquiryFormValues, hint = false) => {
@@ -144,10 +96,12 @@ export function TourRequestForm({
     return ids.length ? ids.join(" ") : undefined;
   };
 
-  if (submitted) {
+  if (saved) {
+    const { inquiry } = saved;
     const typeLabel =
-      apartmentTypeOptions.find((o) => o.value === submitted.apartmentType)
+      apartmentTypeOptions.find((o) => o.value === inquiry.apartmentType)
         ?.label ?? "No preference";
+    const calendarFile = buildTourIcs(saved);
 
     return (
       <div
@@ -161,31 +115,32 @@ export function TourRequestForm({
       >
         <p className="inline-flex items-center gap-2 bg-river-soft px-3 py-1.5 text-xs font-semibold tracking-[0.12em] text-river-deep uppercase">
           <FlaskConical className="size-4" aria-hidden="true" />
-          Demo submission
+          Demo request saved
         </p>
         <h3 className="mt-5 font-display text-3xl leading-tight text-ink">
-          Thanks, {submitted.firstName}. This was a demonstration.
+          Thanks, {inquiry.firstName}. Your demo request is saved.
         </h3>
         <p className="mt-4 leading-relaxed text-ink-2">
-          Your entries passed validation in your browser, but{" "}
+          Reference{" "}
+          <strong className="font-semibold text-ink">{saved.reference}</strong>{" "}
+          is saved in this browser.{" "}
           <strong className="font-semibold text-ink">
-            nothing was sent to the Apex Hudson Riverfront leasing team and
-            nothing was stored.
-          </strong>{" "}
-          Delivering real tour requests requires a backend or a configured form
-          integration, which this proof of concept does not include.
+            It was not sent to the Apex Hudson Riverfront leasing team
+          </strong>
+          , because this demo has no backend. Delivering real tour requests
+          needs a backend or a configured form integration.
         </p>
 
         <dl className="mt-6 grid gap-x-6 gap-y-3 border-y border-line py-5 text-sm sm:grid-cols-2">
           <div>
             <dt className="text-ink-3">Name</dt>
             <dd className="font-medium text-ink">
-              {submitted.firstName} {submitted.lastName}
+              {inquiry.firstName} {inquiry.lastName}
             </dd>
           </div>
           <div>
             <dt className="text-ink-3">Email</dt>
-            <dd className="font-medium break-all text-ink">{submitted.email}</dd>
+            <dd className="font-medium break-all text-ink">{inquiry.email}</dd>
           </div>
           <div>
             <dt className="text-ink-3">Apartment type</dt>
@@ -194,8 +149,8 @@ export function TourRequestForm({
           <div>
             <dt className="text-ink-3">Preferred date and time</dt>
             <dd className="font-medium text-ink">
-              {submitted.preferredDate || "No date chosen"}
-              {submitted.preferredTime ? `, ${submitted.preferredTime}` : ""}
+              {inquiry.preferredDate || "No date chosen"}
+              {inquiry.preferredTime ? `, ${inquiry.preferredTime}` : ""}
             </dd>
           </div>
         </dl>
@@ -217,16 +172,25 @@ export function TourRequestForm({
           .
         </p>
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          {calendarFile ? (
+            <Button
+              type="button"
+              onClick={() => downloadTextFile(calendarFile, "text/calendar")}
+            >
+              <CalendarPlus aria-hidden="true" />
+              Add to calendar
+            </Button>
+          ) : null}
           <Button
             type="button"
             variant="outline"
             onClick={() => {
               reset({ ...tourInquiryDefaults, apartmentType: defaultApartmentType });
-              setSubmitted(null);
+              setSaved(null);
             }}
           >
-            Try another demo request
+            New request
           </Button>
           <Button asChild variant="ghost">
             <Link href="/apartments">Back to apartments</Link>
@@ -250,7 +214,7 @@ export function TourRequestForm({
         />
         <span>
           <strong className="font-semibold text-ink">Demo form.</strong> Your
-          entries are checked in your browser but are not sent to the leasing
+          request is saved in this browser only and is not sent to the leasing
           team. Please do not enter sensitive information.
         </span>
       </p>

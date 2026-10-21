@@ -16,6 +16,18 @@ export function formatRent(amount: number): string {
   return currency.format(amount);
 }
 
+const currencyCents = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+/** Money with cents, for ledgers and receipts. */
+export function formatMoney(amount: number): string {
+  return currencyCents.format(amount);
+}
+
 export function formatNumber(value: number): string {
   return integer.format(value);
 }

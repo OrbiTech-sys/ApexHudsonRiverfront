@@ -11,7 +11,6 @@ import { TourRequestForm } from "@/components/forms/tour-request-form";
 import { DemoNotice } from "@/components/shared/demo-notice";
 import { Button } from "@/components/ui/button";
 import {
-  bedroomTypeLabels,
   formatBathrooms,
   formatBedrooms,
   formatNumber,
@@ -39,7 +38,7 @@ export async function generateMetadata({
   }
 
   return pageMetadata({
-    title: `${plan.name}: ${bedroomTypeLabels[plan.bedroomType]} Apartment in Yonkers`,
+    title: `${plan.name}: ${formatBedrooms(plan.bedrooms)}, ${formatBathrooms(plan.bathrooms)} in Yonkers, NY`,
     description: `${plan.name} at Apex Hudson Riverfront: ${formatBedrooms(plan.bedrooms).toLowerCase()}, ${formatBathrooms(plan.bathrooms).toLowerCase()}, about ${formatNumber(plan.squareFeet)} square feet (demo floor plan data). Request a tour.`,
     path: `/apartments/${plan.slug}`,
   });
@@ -141,14 +140,19 @@ export default async function ApartmentDetailPage({
 
           <div className="lg:col-span-5 lg:col-start-8">
             <h2 className="display-md text-ink">In-unit features</h2>
-            {plan.features.verified && plan.features.items.length > 0 ? (
-              <ul className="mt-6 divide-y divide-line border-y border-line">
-                {plan.features.items.map((item) => (
-                  <li key={item} className="py-3 text-ink-2">
-                    {item}
-                  </li>
-                ))}
-              </ul>
+            {plan.features.items.length > 0 ? (
+              <>
+                <ul className="mt-6 divide-y divide-line border-y border-line">
+                  {plan.features.items.map((item) => (
+                    <li key={item} className="py-3 text-ink-2">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+                {!plan.features.verified ? (
+                  <DemoNotice className="mt-5">{plan.features.note}</DemoNotice>
+                ) : null}
+              </>
             ) : (
               <p className="mt-6 leading-relaxed text-ink-3">
                 {plan.features.note ??

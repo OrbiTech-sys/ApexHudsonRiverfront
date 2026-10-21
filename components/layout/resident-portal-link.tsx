@@ -1,27 +1,28 @@
+import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { demoPortalHref } from "@/data/portal";
 import { site } from "@/data/site";
 import { cn } from "@/lib/utils";
 
-interface ResidentPortalLinkProps {
-  className?: string;
-  /** Show the "not configured" explanation as visible text. */
-  showStatus?: boolean;
-}
-
 /**
- * Renders a live external link only when `site.residentPortalUrl` is set.
- * Otherwise it is an inert, clearly labelled placeholder: no URL is invented.
+ * Links to the real resident portal when `site.residentPortalUrl` is set.
+ * Until then it opens the built-in DEMO portal, marked with a "Demo" tag so
+ * nobody mistakes sample data for the property's actual system.
  */
 export function ResidentPortalLink({
   className,
-  showStatus = false,
-}: ResidentPortalLinkProps) {
+  onClick,
+}: {
+  className?: string;
+  onClick?: () => void;
+}) {
   if (site.residentPortalUrl) {
     return (
       <a
         href={site.residentPortalUrl}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={onClick}
         className={cn("inline-flex items-center gap-1.5", className)}
       >
         Resident Portal
@@ -32,24 +33,15 @@ export function ResidentPortalLink({
   }
 
   return (
-    <button
-      type="button"
-      aria-disabled="true"
-      title="Resident Portal link is not configured in this demo"
-      className={cn(
-        "inline-flex cursor-not-allowed items-center gap-2 opacity-60",
-        className,
-      )}
+    <Link
+      href={demoPortalHref}
+      onClick={onClick}
+      className={cn("inline-flex items-center gap-2", className)}
     >
       Resident Portal
-      <span
-        className={cn(
-          "normal-case tracking-normal",
-          showStatus ? "text-xs" : "sr-only",
-        )}
-      >
-        {showStatus ? "(not configured)" : "Link not configured in this demo"}
+      <span className="rounded-sm bg-current/10 px-1.5 py-0.5 text-[0.625rem] leading-none font-semibold tracking-wider uppercase">
+        Demo
       </span>
-    </button>
+    </Link>
   );
 }

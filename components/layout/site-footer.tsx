@@ -82,7 +82,7 @@ export function SiteFooter() {
           <h2 className="label-caps font-sans text-ink-3">Residents and legal</h2>
           <ul className="mt-3">
             <li>
-              <ResidentPortalLink showStatus className={`${linkClass} gap-2`} />
+              <ResidentPortalLink className={linkClass} />
             </li>
             <li>
               <Link href="/privacy" className={linkClass}>

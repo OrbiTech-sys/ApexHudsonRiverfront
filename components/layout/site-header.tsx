@@ -48,7 +48,7 @@ export function SiteHeader() {
       <div className="container-page flex h-full items-center justify-between gap-6">
         <Wordmark />
 
-        <nav aria-label="Primary" className="hidden lg:block">
+        <nav aria-label="Primary" className="hidden xl:block">
           <ul className="flex items-center gap-9">
             {primaryNav.map((item) => {
               const active = isActive(pathname, item.href);
@@ -74,8 +74,8 @@ export function SiteHeader() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-3 lg:gap-6">
-          <ResidentPortalLink className="hidden h-11 text-[0.8125rem] font-semibold tracking-[0.1em] uppercase lg:inline-flex" />
+        <div className="flex items-center gap-3 xl:gap-6">
+          <ResidentPortalLink className="hidden h-11 text-[0.8125rem] font-semibold tracking-[0.1em] whitespace-nowrap uppercase xl:inline-flex" />
           <Button
             asChild
             variant={overHero ? "inverse" : "default"}
@@ -91,7 +91,7 @@ export function SiteHeader() {
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "lg:hidden",
+                  "xl:hidden",
                   overHero && "text-on-ink hover:bg-white/10",
                 )}
               >
@@ -135,8 +135,8 @@ export function SiteHeader() {
                   })}
                   <li className="flex min-h-14 items-center">
                     <ResidentPortalLink
-                      showStatus
-                      className="text-base font-medium text-ink"
+                      onClick={() => setMenuOpen(false)}
+                      className="min-h-14 flex-1 text-base font-medium text-ink"
                     />
                   </li>
                 </ul>

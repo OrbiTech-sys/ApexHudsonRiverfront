@@ -1,5 +1,6 @@
 import { ArrowUpRight, Mail, MapPin, Phone } from "lucide-react";
 import { TourRequestForm } from "@/components/forms/tour-request-form";
+import { TourRequestsList } from "@/components/forms/tour-requests-list";
 import { PageIntro } from "@/components/layout/page-intro";
 import { ResidentPortalLink } from "@/components/layout/resident-portal-link";
 import { DemoNotice } from "@/components/shared/demo-notice";
@@ -34,6 +35,7 @@ export default function ContactPage() {
               be left blank.
             </p>
             <TourRequestForm className="mt-8" />
+            <TourRequestsList />
           </div>
 
           <aside
@@ -108,10 +110,7 @@ export default function ContactPage() {
                 <h3 className="label-caps font-sans text-ink-3">
                   Current residents
                 </h3>
-                <ResidentPortalLink
-                  showStatus
-                  className="mt-2 min-h-11 text-base font-medium text-ink"
-                />
+                <ResidentPortalLink className="mt-2 min-h-11 text-base font-medium text-ink" />
               </div>
             </div>
           </aside>
